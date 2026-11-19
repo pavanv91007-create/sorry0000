@@ -1,0 +1,1267 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#eef9ff" />
+  <title>A Letter, Waiting</title>
+  <style>
+    :root {
+      /* Skyglass: selected colour direction. */
+      --ocean-950: #06384e;
+      --ocean-800: #0b4963;
+      --ocean-400: #70cbe0;
+      --mist: #e9f8fb;
+      --paper: #fffdf9;
+      --ink: #0b4963;
+      --pink-300: #f4b4ca;
+      --pink-100: #ffe7ef;
+      --glass: rgba(239, 252, 255, .30);
+      --line: rgba(255,255,255,.78);
+      --shadow: rgba(6, 56, 78, .22);
+      --ease-out: cubic-bezier(.16, 1, .3, 1);
+      --ease-spring: cubic-bezier(.2, 1.25, .38, 1);
+    }
+
+    * { box-sizing: border-box; }
+    html { background: var(--mist); }
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(ellipse at 51% 48%, rgba(255,253,249,.96) 0, rgba(255,253,249,.52) 22%, transparent 52%),
+        radial-gradient(circle at 83% 12%, rgba(244,180,202,.68), transparent 29rem),
+        radial-gradient(circle at 11% 88%, rgba(112,203,224,.42), transparent 31rem),
+        linear-gradient(145deg, #fff8fa 0%, #e9f8fb 49%, #fdebf1 100%);
+    }
+
+    .experience {
+      position: relative;
+      min-height: 100svh;
+      isolation: isolate;
+      display: grid;
+      grid-template-rows: 1fr;
+      padding: clamp(1.25rem, 3vw, 2.7rem);
+      overflow: hidden;
+    }
+
+    /* Slow revolving colour wash: the page itself moves like the glass transition. */
+    .color-revolve {
+      pointer-events: none;
+      position: absolute;
+      z-index: -1;
+      width: 126vmax;
+      aspect-ratio: 1;
+      left: 50%;
+      top: 50%;
+      border-radius: 50%;
+      background: conic-gradient(
+        from 8deg,
+        transparent 0deg 28deg,
+        rgba(112,203,224,.25) 64deg,
+        rgba(255,255,255,.12) 112deg,
+        rgba(244,180,202,.27) 166deg,
+        transparent 220deg,
+        rgba(112,203,224,.19) 276deg,
+        rgba(244,180,202,.18) 326deg,
+        transparent 360deg
+      );
+      filter: blur(52px) saturate(120%);
+      opacity: .72;
+      transform: translate(-50%, -50%) rotate(0deg) scale(1.08);
+      will-change: transform;
+      transition: opacity 1s ease;
+      animation: backgroundRevolve 34s linear infinite;
+    }
+    .color-revolve::before,
+    .color-revolve::after {
+      content: "";
+      position: absolute;
+      border-radius: inherit;
+      inset: 15%;
+      background: conic-gradient(
+        from 190deg,
+        transparent 0deg 45deg,
+        rgba(244,180,202,.23) 95deg,
+        rgba(255,255,255,.13) 145deg,
+        transparent 206deg,
+        rgba(112,203,224,.22) 271deg,
+        transparent 330deg
+      );
+      filter: blur(40px);
+      mix-blend-mode: screen;
+      animation: backgroundCounterRevolve 23s linear infinite;
+    }
+    .color-revolve::after {
+      inset: 30%;
+      opacity: .86;
+      filter: blur(28px);
+      animation-duration: 16s;
+      animation-direction: reverse;
+    }
+    @keyframes backgroundRevolve {
+      to { transform: translate(-50%, -50%) rotate(360deg) scale(1.08); }
+    }
+    @keyframes backgroundCounterRevolve {
+      to { transform: rotate(-360deg) scale(1.15); }
+    }
+
+    .noise {
+      pointer-events: none;
+      position: absolute;
+      z-index: -1;
+      inset: 0;
+      opacity: .22;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 180 180' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.19'/%3E%3C/svg%3E");
+      mix-blend-mode: soft-light;
+    }
+
+    .ambient-glow {
+      pointer-events: none;
+      position: absolute;
+      z-index: -1;
+      border-radius: 50%;
+      filter: blur(20px);
+      mix-blend-mode: soft-light;
+      will-change: transform;
+      animation: ambientFloat 18s ease-in-out infinite alternate;
+    }
+    .ambient-glow--rose { width: 32rem; height: 32rem; top: -16rem; right: -10rem; background: rgba(244,180,202,.76); }
+    .ambient-glow--sea { width: 34rem; height: 34rem; left: -18rem; bottom: -20rem; background: rgba(112,203,224,.64); animation-delay: -7s; }
+    .ambient-glow--ivory { width: 25rem; height: 25rem; left: 38%; top: 38%; background: rgba(255,252,245,.84); animation-delay: -12s; }
+    @keyframes ambientFloat {
+      to { transform: translate3d(2.4rem, -1.7rem, 0) scale(1.14); }
+    }
+
+    .orb {
+      position: absolute;
+      z-index: -1;
+      border-radius: 999px;
+      filter: blur(15px);
+      mix-blend-mode: soft-light;
+      opacity: .57;
+      animation: drift 15s ease-in-out infinite alternate;
+    }
+    .orb--one { width: 25rem; height: 25rem; background: rgba(112,203,224,.34); left: -11rem; top: 21%; }
+    .orb--two { width: 22rem; height: 22rem; background: rgba(244,180,202,.42); right: -7rem; bottom: -7rem; animation-delay: -5s; }
+    .orb--three { width: 9rem; height: 9rem; background: rgba(255,255,255,.82); right: 19%; top: 13%; animation-delay: -9s; }
+    @keyframes drift { to { transform: translate3d(32px, -28px, 0) scale(1.09); } }
+
+    .stardust { pointer-events: none; position: absolute; z-index: 0; inset: 0; overflow: hidden; }
+    .stardust i { position: absolute; display: block; width: .27rem; aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,.9); box-shadow: 0 0 .85rem .14rem rgba(255,255,255,.74); opacity: .2; animation: twinkle 4.8s ease-in-out infinite; }
+    .stardust i:nth-child(1) { left: 14%; top: 22%; animation-delay: -1s; }
+    .stardust i:nth-child(2) { left: 25%; top: 73%; animation-delay: -3.3s; }
+    .stardust i:nth-child(3) { left: 77%; top: 28%; animation-delay: -2.1s; }
+    .stardust i:nth-child(4) { left: 91%; top: 62%; animation-delay: -4.2s; }
+    .stardust i:nth-child(5) { left: 63%; top: 83%; animation-delay: -.6s; }
+    .stardust i:nth-child(6) { left: 46%; top: 16%; animation-delay: -2.8s; }
+    @keyframes twinkle { 45% { opacity: .78; transform: scale(1.7); } 100% { opacity: .2; } }
+
+    /* A dense sakura stream crosses the scene from both sides in the site’s glass palette. */
+    .petal-drift { pointer-events: none; position: absolute; z-index: 0; inset: 0; overflow: hidden; }
+    .petal-drift i {
+      --turn: 0deg;
+      --duration: 18s;
+      --dip: 2.2rem;
+      --end: -.8rem;
+      --petal-a: rgba(255,247,251,.98);
+      --petal-b: rgba(244,180,202,.78);
+      --petal-glow: rgba(244,180,202,.48);
+      --petal-size: 1;
+      --shine-delay: 0s;
+      position: absolute;
+      display: block;
+      width: calc(1.14rem * var(--petal-size));
+      height: calc(.76rem * var(--petal-size));
+      border: 1px solid rgba(255,255,255,.50);
+      border-radius: 92% 9% 89% 12% / 88% 12% 90% 10%;
+      background:
+        radial-gradient(ellipse at 26% 20%, rgba(255,255,255,1) 0 12%, transparent 34%),
+        radial-gradient(ellipse at 70% 77%, rgba(255,255,255,.36), transparent 43%),
+        linear-gradient(135deg, var(--petal-a), var(--petal-b));
+      box-shadow: inset 0 1px rgba(255,255,255,.96), inset 0 -1px rgba(255,255,255,.20), 0 .3rem .9rem var(--petal-glow);
+      opacity: 0;
+      filter: saturate(128%) brightness(1.04);
+      animation-duration: var(--duration);
+      animation-timing-function: cubic-bezier(.36,.03,.35,1);
+      animation-iteration-count: infinite;
+    }
+    .petal-drift i::before {
+      content: "";
+      position: absolute;
+      width: 67%;
+      height: 38%;
+      left: 7%;
+      top: 8%;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(255,255,255,.92), rgba(255,255,255,.16) 56%, transparent 72%);
+      filter: blur(.3px);
+      opacity: .68;
+      transform: rotate(-18deg);
+      animation: petalHighlight 2.8s ease-in-out var(--shine-delay) infinite;
+    }
+    .petal-drift i::after {
+      content: "";
+      position: absolute;
+      width: 58%;
+      height: 1px;
+      left: 18%;
+      top: 59%;
+      border-radius: 50%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.86), var(--petal-glow), transparent);
+      box-shadow: 0 0 .28rem var(--petal-glow);
+      transform: rotate(-21deg);
+      opacity: .8;
+    }
+    .petal-drift i:nth-child(odd) { left: -3rem; animation-name: sakuraSweepRight; }
+    .petal-drift i:nth-child(even) { right: -3rem; animation-name: sakuraSweepLeft; }
+    .petal-drift i:nth-child(4n+1) { --petal-a: rgba(255,245,250,.98); --petal-b: rgba(244,180,202,.82); --petal-glow: rgba(244,180,202,.58); }
+    .petal-drift i:nth-child(4n+2) { --petal-a: rgba(234,250,253,.98); --petal-b: rgba(112,203,224,.80); --petal-glow: rgba(112,203,224,.52); }
+    .petal-drift i:nth-child(4n+3) { --petal-a: rgba(255,255,255,.99); --petal-b: rgba(228,245,248,.84); --petal-glow: rgba(255,255,255,.52); }
+    .petal-drift i:nth-child(4n) { --petal-a: rgba(255,239,247,.98); --petal-b: rgba(158,216,229,.76); --petal-glow: rgba(190,207,238,.50); }
+    .petal-drift i:nth-child(3n) { --petal-size: 1.30; }
+    .petal-drift i:nth-child(5n) { --petal-size: 1.16; }
+    .petal-drift i:nth-child(7n) { --petal-size: 1.43; }
+    .petal-drift i:nth-child(3n+1) { --shine-delay: -.6s; }
+    .petal-drift i:nth-child(3n+2) { --shine-delay: -1.45s; }
+    .petal-drift i:nth-child(3n) { --shine-delay: -2.15s; }
+    .petal-drift i:nth-child(1) { top: 8%; --turn: 26deg; --duration: 17s; animation-delay: -3s; }
+    .petal-drift i:nth-child(2) { top: 18%; --turn: 148deg; --duration: 20s; animation-delay: -11s; --dip: -2rem; }
+    .petal-drift i:nth-child(3) { top: 29%; --turn: 210deg; --duration: 18s; animation-delay: -6s; }
+    .petal-drift i:nth-child(4) { top: 41%; --turn: 315deg; --duration: 22s; animation-delay: -16s; --dip: -1.3rem; }
+    .petal-drift i:nth-child(5) { top: 53%; --turn: 88deg; --duration: 19s; animation-delay: -9s; }
+    .petal-drift i:nth-child(6) { top: 66%; --turn: 68deg; --duration: 21s; animation-delay: -14s; --dip: -2.4rem; }
+    .petal-drift i:nth-child(7) { top: 78%; --turn: 172deg; --duration: 18s; animation-delay: -4s; }
+    .petal-drift i:nth-child(8) { top: 89%; --turn: 332deg; --duration: 24s; animation-delay: -19s; --dip: -1.5rem; }
+    .petal-drift i:nth-child(9) { top: 14%; --turn: 119deg; --duration: 20s; animation-delay: -12s; }
+    .petal-drift i:nth-child(10) { top: 25%; --turn: 248deg; --duration: 23s; animation-delay: -8s; --dip: -2rem; }
+    .petal-drift i:nth-child(11) { top: 37%; --turn: 42deg; --duration: 17s; animation-delay: -15s; }
+    .petal-drift i:nth-child(12) { top: 48%; --turn: 292deg; --duration: 21s; animation-delay: -2s; --dip: -1.7rem; }
+    .petal-drift i:nth-child(13) { top: 60%; --turn: 156deg; --duration: 19s; animation-delay: -10s; }
+    .petal-drift i:nth-child(14) { top: 71%; --turn: 74deg; --duration: 22s; animation-delay: -17s; --dip: -2.1rem; }
+    .petal-drift i:nth-child(15) { top: 84%; --turn: 228deg; --duration: 20s; animation-delay: -5s; }
+    .petal-drift i:nth-child(16) { top: 6%; --turn: 346deg; --duration: 24s; animation-delay: -21s; --dip: -1.1rem; }
+    .petal-drift i:nth-child(17) { top: 22%; --turn: 97deg; --duration: 18s; animation-delay: -7s; }
+    .petal-drift i:nth-child(18) { top: 34%; --turn: 185deg; --duration: 21s; animation-delay: -13s; --dip: -2.2rem; }
+    .petal-drift i:nth-child(19) { top: 46%; --turn: 283deg; --duration: 17s; animation-delay: -1s; }
+    .petal-drift i:nth-child(20) { top: 58%; --turn: 18deg; --duration: 23s; animation-delay: -18s; --dip: -1.4rem; }
+    .petal-drift i:nth-child(21) { top: 70%; --turn: 137deg; --duration: 19s; animation-delay: -8s; }
+    .petal-drift i:nth-child(22) { top: 81%; --turn: 257deg; --duration: 22s; animation-delay: -15s; --dip: -2.6rem; }
+    .petal-drift i:nth-child(23) { top: 93%; --turn: 62deg; --duration: 20s; animation-delay: -4s; }
+    .petal-drift i:nth-child(24) { top: 11%; --turn: 318deg; --duration: 24s; animation-delay: -20s; --dip: -1.6rem; }
+    @keyframes sakuraSweepRight {
+      0% { opacity: 0; transform: translate3d(-1rem, -1rem, 0) rotate(var(--turn)) scale(.75); }
+      12% { opacity: .74; }
+      54% { transform: translate3d(52vw, var(--dip), 0) rotate(calc(var(--turn) + 132deg)) scale(1); }
+      87% { opacity: .62; }
+      100% { opacity: 0; transform: translate3d(112vw, var(--end), 0) rotate(calc(var(--turn) + 255deg)) scale(.84); }
+    }
+    @keyframes sakuraSweepLeft {
+      0% { opacity: 0; transform: translate3d(1rem, -1rem, 0) rotate(var(--turn)) scale(.75); }
+      12% { opacity: .74; }
+      54% { transform: translate3d(-52vw, var(--dip), 0) rotate(calc(var(--turn) - 132deg)) scale(1); }
+      87% { opacity: .62; }
+      100% { opacity: 0; transform: translate3d(-112vw, var(--end), 0) rotate(calc(var(--turn) - 255deg)) scale(.84); }
+    }
+    @keyframes petalHighlight {
+      0%, 100% { opacity: .36; filter: blur(.3px); }
+      48% { opacity: 1; filter: blur(0); }
+    }
+
+    .stage {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      place-items: center;
+      min-height: min(43rem, 76vh);
+      perspective: 1250px;
+    }
+    /* A soft moonlit halo and reflected light make the envelope feel like a small keepsake. */
+    .stage::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      width: min(50rem, 94vw);
+      aspect-ratio: 1;
+      left: 50%;
+      top: 47%;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 50% 47%, rgba(255,255,255,.86) 0 4%, rgba(255,255,255,.43) 21%, rgba(244,180,202,.15) 43%, rgba(112,203,224,.10) 59%, transparent 72%);
+      filter: blur(3px);
+      transform: translate(-50%, -50%) scale(.83);
+      opacity: .86;
+      animation: auraBreathe 9s ease-in-out infinite alternate;
+    }
+    .stage::after {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      width: min(39rem, 82vw);
+      height: 6.5rem;
+      left: 50%;
+      bottom: 7%;
+      border-radius: 50%;
+      background: radial-gradient(ellipse, rgba(11,73,99,.16), rgba(112,203,224,.09) 39%, transparent 72%);
+      filter: blur(12px);
+      transform: translateX(-50%);
+      opacity: .62;
+      animation: reflectionBreathe 8s ease-in-out infinite alternate;
+    }
+    @keyframes auraBreathe { to { opacity: 1; transform: translate(-50%, -50%) scale(.91); } }
+    @keyframes reflectionBreathe { to { opacity: .83; transform: translateX(-50%) scaleX(1.08); } }
+
+    .intro { 
+      position: absolute;
+      top: clamp(2rem, 8vh, 5.5rem);
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      width: min(95%, 42rem);
+      transition: opacity .65s ease, transform .65s var(--ease-out);
+      pointer-events: none;
+    }
+    .eyebrow {
+      margin: 0 0 .7rem;
+      font-size: .67rem;
+      font-weight: 800;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      opacity: .62;
+    }
+    h1 {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(2.25rem, 4.5vw, 4.5rem);
+      font-weight: 400;
+      letter-spacing: -.055em;
+      line-height: .95;
+      margin: 0;
+    }
+    .intro-copy {
+      margin: 1rem auto 0;
+      max-width: 31rem;
+      line-height: 1.6;
+      font-size: clamp(.86rem, 1.15vw, 1rem);
+      opacity: .67;
+    }
+
+    .envelope-button {
+      --w: min(72vw, 27rem);
+      appearance: none;
+      position: relative;
+      width: var(--w);
+      height: calc(var(--w) * .68);
+      padding: 0;
+      border: 0;
+      background: transparent;
+      cursor: pointer;
+      isolation: isolate;
+      transform-style: preserve-3d;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
+    .envelope-button:focus-visible .envelope-wrap {
+      outline: 2px solid var(--ocean-800);
+      outline-offset: 14px;
+    }
+
+    /* Two transparent elliptical orbits make the envelope feel suspended in glass light. */
+    .glass-orbit {
+      pointer-events: none;
+      position: absolute;
+      z-index: 0;
+      left: 50%;
+      top: 50%;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.30);
+      opacity: .82;
+      filter: drop-shadow(0 0 .55rem rgba(255,255,255,.44));
+      transform: translate(-50%, -50%) rotate(0deg);
+      transform-origin: center;
+      will-change: transform;
+      scale: 1;
+      transition: opacity .7s ease, scale 1.05s var(--ease-out);
+    }
+    .glass-orbit::before, .glass-orbit::after {
+      content: "";
+      position: absolute;
+      display: block;
+      border-radius: 99px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.98), rgba(112,203,224,.72), transparent);
+      box-shadow: 0 0 .45rem rgba(255,255,255,.72);
+    }
+    .glass-orbit::before { width: 22%; height: 2px; left: 13%; top: -1px; }
+    .glass-orbit::after { width: 15%; height: 2px; right: 8%; bottom: -1px; opacity: .8; background: linear-gradient(90deg, transparent, rgba(244,180,202,.82), rgba(255,255,255,.92), transparent); }
+    .glass-orbit--outer {
+      width: 132%;
+      height: 164%;
+      box-shadow: inset 0 0 1rem rgba(112,203,224,.06), 0 0 1.3rem rgba(244,180,202,.13);
+      animation: glassOrbitOuter 12s linear infinite;
+    }
+    .glass-orbit--inner {
+      width: 116%;
+      height: 141%;
+      border-color: rgba(244,180,202,.24);
+      box-shadow: inset 0 0 1.1rem rgba(244,180,202,.07), 0 0 .9rem rgba(112,203,224,.12);
+      opacity: .58;
+      animation: glassOrbitInner 8.5s linear infinite;
+    }
+    .glass-orbit--inner::before { left: 62%; top: -1px; width: 18%; }
+    .glass-orbit--inner::after { right: 60%; bottom: -1px; width: 16%; }
+    @keyframes glassOrbitOuter { to { transform: translate(-50%, -50%) rotate(360deg); } }
+    @keyframes glassOrbitInner { to { transform: translate(-50%, -50%) rotate(-360deg); } }
+
+    .halo {
+      position: absolute;
+      width: 126%;
+      aspect-ratio: 1;
+      left: -13%;
+      top: -24%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,.87) 0, rgba(255,255,255,.31) 29%, transparent 68%);
+      filter: blur(8px);
+      transform: translateZ(-30px) scale(.85);
+      opacity: .62;
+      transition: transform 1.4s var(--ease-out), opacity .8s ease;
+    }
+
+    .envelope-wrap {
+      position: absolute;
+      z-index: 1;
+      inset: 0;
+      transform-style: preserve-3d;
+      filter: drop-shadow(0 2.1rem 1.85rem rgba(8, 53, 76, .18));
+      transition: transform 1.1s var(--ease-spring), filter .8s ease;
+    }
+    .envelope-wrap::before {
+      content: "";
+      position: absolute;
+      inset: -5%;
+      z-index: -2;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(255,255,255,.8), transparent 65%);
+      filter: blur(17px);
+      opacity: .78;
+      transform: scale(1);
+      transition: opacity .6s ease, transform .8s var(--ease-out);
+    }
+    .envelope-wrap::after {
+      content: "";
+      position: absolute;
+      z-index: 12;
+      left: 7%;
+      top: 6%;
+      width: 26%;
+      height: 3px;
+      border-radius: 50%;
+      transform: rotate(-23deg);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.95), transparent);
+      opacity: .77;
+      transition: transform 1s var(--ease-out), opacity .5s ease;
+    }
+
+    .envelope {
+      position: absolute;
+      inset: 0;
+      transform-style: preserve-3d;
+      transition: opacity .75s ease, transform 1s var(--ease-out);
+    }
+    .back-panel, .front-panel, .flap, .fold, .rim {
+      position: absolute;
+      inset: 0;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      backface-visibility: hidden;
+    }
+    .back-panel {
+      z-index: 1;
+      border-radius: .55rem;
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.64), rgba(207,243,250,.17) 38%, rgba(247,181,207,.18)),
+        rgba(211,242,248,.22);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.92), inset 0 0 0 1px rgba(56,140,168,.07);
+      backdrop-filter: blur(10px) saturate(125%);
+      transition: opacity .72s ease, transform 1s var(--ease-out);
+    }
+    .back-panel::before {
+      content: "";
+      position: absolute;
+      width: 70%; height: 160%;
+      top: -28%; left: -50%;
+      transform: rotate(22deg);
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.64), transparent);
+      animation: slowSheen 9s ease-in-out infinite;
+    }
+    @keyframes slowSheen { 50% { transform: translateX(170%) rotate(22deg); } }
+
+    /* A faint watercolour liner gives the clear envelope depth without hiding the paper. */
+    .inner-liner {
+      position: absolute;
+      z-index: 2;
+      inset: .48rem;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.48);
+      border-radius: .34rem;
+      background:
+        radial-gradient(circle at 19% 87%, rgba(244,180,202,.36), transparent 29%),
+        radial-gradient(circle at 81% 12%, rgba(112,203,224,.35), transparent 28%),
+        linear-gradient(135deg, rgba(255,255,255,.24), transparent 56%);
+      opacity: .76;
+      box-shadow: inset 0 0 2rem rgba(255,255,255,.22);
+      pointer-events: none;
+      transition: opacity .72s ease, transform 1s var(--ease-out);
+    }
+    .inner-liner::after {
+      content: "";
+      position: absolute;
+      inset: 15% 10%;
+      border: 1px solid rgba(255,255,255,.28);
+      border-radius: 50%;
+      filter: blur(4px);
+    }
+
+    /* A clipped pocket keeps the sheet physically inside before the flap opens. */
+    .letter-pocket {
+      position: absolute;
+      z-index: 3;
+      inset: 0;
+      overflow: hidden;
+      border-radius: .55rem;
+      transform-style: preserve-3d;
+    }
+
+    .letter {
+      position: absolute;
+      z-index: 3;
+      width: 78%;
+      height: 91%;
+      left: 11%;
+      top: 22%;
+      padding: clamp(.95rem, 3vw, 1.5rem);
+      border-radius: .24rem;
+      overflow: hidden;
+      color: var(--ink);
+      font-family: "Lucida Calligraphy", "Monotype Corsiva", "URW Chancery L", cursive;
+      background:
+        linear-gradient(100deg, rgba(255,255,255,.86), rgba(255,255,255,.34) 26%, transparent 48%),
+        repeating-linear-gradient(0deg, transparent 0 25px, rgba(33,93,115,.055) 26px),
+        var(--paper);
+      box-shadow: 0 .9rem 1.4rem rgba(13,68,91,.17), inset 0 0 0 1px rgba(16,75,98,.11);
+      transform: translate3d(0, 14%, 17px) rotateX(-7deg) scale(.92);
+      transform-origin: 50% 100%;
+      transition: transform 1.08s var(--ease-spring), width .82s var(--ease-out), height .82s var(--ease-out), left .82s var(--ease-out), top .82s var(--ease-out), box-shadow .75s ease;
+      will-change: transform;
+    }
+    /* The opened letter becomes a real reading surface with its own gentle scroll. */
+    .letter-scroll {
+      position: relative;
+      z-index: 3;
+      display: block;
+      height: 100%;
+      overflow: hidden;
+      overscroll-behavior: contain;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(244,180,202,.78) transparent;
+      scroll-behavior: smooth;
+    }
+    .letter-scroll::-webkit-scrollbar { width: .34rem; }
+    .letter-scroll::-webkit-scrollbar-track { background: transparent; }
+    .letter-scroll::-webkit-scrollbar-thumb { border-radius: 99px; background: linear-gradient(var(--pink-300), var(--ocean-400)); }
+    .letter-scroll p + p { margin-top: 1.05em; }
+    .is-open .letter-scroll { overflow-y: auto; padding-right: .42rem; }
+
+    /* A visible floral border and two sakura corner blooms decorate the opened page. */
+    .letter-frame {
+      pointer-events: none;
+      position: absolute;
+      z-index: 1;
+      inset: .55rem;
+      border: 1px solid rgba(244,180,202,.62);
+      border-radius: .38rem;
+      background:
+        radial-gradient(ellipse at 5% 5%, rgba(244,180,202,.22) 0 5%, transparent 12%),
+        radial-gradient(ellipse at 95% 5%, rgba(112,203,224,.18) 0 5%, transparent 12%),
+        radial-gradient(ellipse at 5% 95%, rgba(112,203,224,.16) 0 5%, transparent 12%),
+        radial-gradient(ellipse at 95% 95%, rgba(244,180,202,.18) 0 5%, transparent 12%);
+      box-shadow: inset 0 0 0 3px rgba(255,255,255,.42), inset 0 0 0 5px rgba(244,180,202,.10), inset 0 0 1.8rem rgba(112,203,224,.11), 0 0 .65rem rgba(244,180,202,.16);
+      opacity: 0;
+      transform: scale(.96);
+      transition: opacity .8s ease .35s, transform .9s var(--ease-out) .35s;
+    }
+    .letter-frame::before,
+    .letter-frame::after {
+      content: "";
+      position: absolute;
+      width: 3.9rem;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(244,180,202,.82), rgba(112,203,224,.54));
+      box-shadow: 0 0 .48rem rgba(244,180,202,.35);
+    }
+    .letter-frame::before { left: .6rem; top: .6rem; }
+    .letter-frame::after { right: .6rem; bottom: .6rem; transform: rotate(180deg); }
+    .letter-bloom {
+      pointer-events: none;
+      position: absolute;
+      z-index: 5;
+      width: 3.1rem;
+      aspect-ratio: 1;
+      opacity: 0;
+      transform: scale(.55) rotate(-18deg);
+      transition: opacity .7s ease .5s, transform 1s var(--ease-spring) .5s;
+    }
+    .letter-bloom--top { right: .9rem; top: .75rem; }
+    .letter-bloom--bottom { left: .9rem; bottom: .7rem; transform: scale(.55) rotate(150deg); }
+    .letter-bloom--side-left { z-index: 2; width: 2.05rem; left: -.32rem; top: 40%; transform: scale(.45) rotate(72deg); }
+    .letter-bloom--side-right { z-index: 2; width: 2.05rem; right: -.32rem; top: 67%; transform: scale(.45) rotate(236deg); }
+    .letter-bloom i {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 1.22rem;
+      height: .7rem;
+      border-radius: 94% 7% 91% 10%;
+      transform-origin: 0 50%;
+      background: linear-gradient(135deg, rgba(255,255,255,.98), rgba(244,180,202,.78), rgba(112,203,224,.43));
+      border: 1px solid rgba(255,255,255,.72);
+      box-shadow: inset 0 1px rgba(255,255,255,.9), 0 0 .5rem rgba(244,180,202,.34);
+    }
+    .letter-bloom i:nth-child(1) { transform: translateX(-.14rem) rotate(0deg); }
+    .letter-bloom i:nth-child(2) { transform: translateX(-.14rem) rotate(72deg); }
+    .letter-bloom i:nth-child(3) { transform: translateX(-.14rem) rotate(144deg); }
+    .letter-bloom i:nth-child(4) { transform: translateX(-.14rem) rotate(216deg); }
+    .letter-bloom i:nth-child(5) { transform: translateX(-.14rem) rotate(288deg); }
+    .letter-bloom::after {
+      content: "";
+      position: absolute;
+      left: calc(50% - .34rem);
+      top: calc(50% - .34rem);
+      width: .68rem;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, #fff, #f4b4ca 58%, #70cbe0);
+      box-shadow: 0 0 .65rem rgba(255,255,255,.82);
+    }
+    .is-open .letter-frame { opacity: .82; transform: scale(1); }
+    .is-open .letter-bloom { opacity: .92; transform: scale(1) rotate(-18deg); }
+    .is-open .letter-bloom--bottom { transform: scale(1) rotate(150deg); }
+    .is-open .letter-bloom--side-left { opacity: .70; transform: scale(1) rotate(72deg); }
+    .is-open .letter-bloom--side-right { opacity: .70; transform: scale(1) rotate(236deg); }
+
+    .letter-garland {
+      pointer-events: none;
+      position: absolute;
+      z-index: 4;
+      left: 3.8rem;
+      right: 3.8rem;
+      top: .9rem;
+      height: .55rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(-.4rem);
+      transition: opacity .65s ease .6s, transform .7s var(--ease-out) .6s;
+    }
+    .letter-garland::before {
+      content: "";
+      position: absolute;
+      z-index: -1;
+      left: 0;
+      right: 0;
+      top: 50%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(244,180,202,.55), rgba(112,203,224,.46), rgba(244,180,202,.55), transparent);
+    }
+    .letter-garland i {
+      width: .28rem;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 25%, #fff, #f4b4ca 58%, #70cbe0);
+      box-shadow: 0 0 .35rem rgba(255,255,255,.9);
+      animation: garlandTwinkle 2.4s ease-in-out infinite;
+    }
+    .letter-garland i:nth-child(2n) { animation-delay: -.8s; }
+    .letter-garland i:nth-child(3n) { animation-delay: -1.5s; }
+    @keyframes garlandTwinkle { 50% { transform: scale(1.55); box-shadow: 0 0 .7rem rgba(244,180,202,.82); } }
+    .is-open .letter-garland { opacity: .9; transform: translateY(0); }
+
+    .letter-petal-layer {
+      pointer-events: none;
+      position: absolute;
+      z-index: 2;
+      inset: 0;
+      overflow: hidden;
+      opacity: 0;
+      transition: opacity .8s ease .45s;
+    }
+    .letter-petal-layer i {
+      --pturn: 0deg;
+      position: absolute;
+      display: block;
+      width: .9rem;
+      height: .58rem;
+      border-radius: 92% 8% 89% 11%;
+      border: 1px solid rgba(255,255,255,.52);
+      background: linear-gradient(135deg, rgba(255,255,255,.92), rgba(244,180,202,.54), rgba(112,203,224,.44));
+      box-shadow: inset 0 1px rgba(255,255,255,.94), 0 0 .55rem rgba(244,180,202,.36);
+      opacity: .46;
+      transform: rotate(var(--pturn));
+      animation: letterPetalFloat 8s ease-in-out infinite alternate;
+    }
+    .letter-petal-layer i::after {
+      content: "";
+      position: absolute;
+      width: 54%;
+      height: 1px;
+      top: 53%;
+      left: 20%;
+      border-radius: 50%;
+      background: rgba(255,255,255,.72);
+      transform: rotate(-20deg);
+    }
+    .letter-petal-layer i:nth-child(1) { left: -2%; top: 12%; --pturn: 20deg; animation-delay: -2s; }
+    .letter-petal-layer i:nth-child(2) { right: 2%; top: 21%; --pturn: 135deg; animation-delay: -5s; background: linear-gradient(135deg, rgba(255,255,255,.92), rgba(112,203,224,.57)); }
+    .letter-petal-layer i:nth-child(3) { left: 5%; top: 47%; --pturn: 244deg; animation-delay: -1s; }
+    .letter-petal-layer i:nth-child(4) { right: -1%; top: 58%; --pturn: 75deg; animation-delay: -6s; background: linear-gradient(135deg, rgba(255,255,255,.92), rgba(112,203,224,.50), rgba(244,180,202,.42)); }
+    .letter-petal-layer i:nth-child(5) { left: 12%; bottom: 7%; --pturn: 300deg; animation-delay: -4s; }
+    .letter-petal-layer i:nth-child(6) { right: 14%; bottom: 12%; --pturn: 110deg; animation-delay: -7s; }
+    .letter-petal-layer i:nth-child(7) { left: 42%; top: 4%; --pturn: 186deg; animation-delay: -3s; background: linear-gradient(135deg, rgba(255,255,255,.94), rgba(112,203,224,.52)); }
+    .letter-petal-layer i:nth-child(8) { right: 38%; bottom: 3%; --pturn: 28deg; animation-delay: -8s; }
+    @keyframes letterPetalFloat {
+      to { transform: translate3d(1.6rem, -1rem, 0) rotate(calc(var(--pturn) + 45deg)); opacity: .2; }
+    }
+    .is-open .letter-petal-layer { opacity: .72; }
+
+    .scroll-cue {
+      pointer-events: none;
+      position: absolute;
+      z-index: 5;
+      right: .85rem;
+      bottom: .7rem;
+      padding: .25rem .4rem;
+      border-radius: 99px;
+      color: rgba(11,73,99,.72);
+      background: rgba(255,253,249,.74);
+      box-shadow: 0 .2rem .7rem rgba(11,73,99,.10);
+      font-family: ui-sans-serif, system-ui, sans-serif;
+      font-size: .54rem;
+      letter-spacing: .04em;
+      opacity: 0;
+      transform: translateY(.35rem);
+      transition: opacity .5s ease .8s, transform .6s var(--ease-out) .8s;
+    }
+    .is-open .scroll-cue { opacity: .88; transform: translateY(0); animation: scrollCue 1.8s ease-in-out infinite 1.5s; }
+    @keyframes scrollCue { 50% { transform: translateY(.22rem); } }
+
+    .letter::before {
+      content: "";
+      position: absolute;
+      z-index: 0;
+      inset: -18%;
+      pointer-events: none;
+      background: radial-gradient(circle at 50% 44%, rgba(255,255,255,.96), rgba(255,242,248,.38) 27%, transparent 64%);
+      opacity: 0;
+      transform: scale(.62);
+    }
+    .letter::after {
+      content: "";
+      position: absolute;
+      z-index: 4;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(111deg, transparent 25%, rgba(255,255,255,.48) 42%, transparent 52%);
+      transform: translateX(-120%);
+      transition: transform 1.2s var(--ease-out);
+    }
+    @keyframes paperBloom {
+      0% { opacity: 0; transform: scale(.62); }
+      32% { opacity: .84; transform: scale(1); }
+      100% { opacity: 0; transform: scale(1.3); }
+    }
+    /* The paper is visible inside the clear envelope; its private message is not. */
+    .letter-rule {
+      position: relative;
+      display: block;
+      width: 100%;
+      height: 1px;
+      margin-bottom: 1.12rem;
+      background: linear-gradient(90deg, transparent, var(--pink-300) 24%, var(--ocean-400) 52%, var(--pink-300) 78%, transparent);
+      box-shadow: 0 0 .45rem rgba(244,180,202,.45);
+      opacity: 0; transform: translateY(.45rem);
+      transition: opacity .45s ease .12s, transform .6s var(--ease-out) .12s;
+    }
+    .letter-rule::before,
+    .letter-rule::after {
+      position: absolute;
+      top: 50%;
+      color: rgba(244,180,202,.88);
+      font-family: Georgia, serif;
+      font-size: .92rem;
+      line-height: 1;
+      text-shadow: 0 0 .45rem rgba(255,255,255,.95);
+    }
+    .letter-rule::before { content: "✿"; left: 50%; transform: translate(-50%, -50%); }
+    .letter-rule::after { content: "✦"; right: 13%; transform: translateY(-50%); color: rgba(112,203,224,.88); }
+    .letter-mark {
+      margin: 0;
+      font-size: clamp(.56rem, 1.2vw, .7rem);
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      opacity: 0;
+      transform: translateY(.45rem);
+      transition: opacity .45s ease .18s, transform .6s var(--ease-out) .18s;
+    }
+    .letter h2 {
+      margin: .7rem 0 .5rem;
+      font-family: "Lucida Calligraphy", "Monotype Corsiva", "URW Chancery L", cursive;
+      font-size: clamp(1.5rem, 3.4vw, 2.7rem);
+      font-weight: 400;
+      line-height: .95;
+      letter-spacing: -.05em;
+      opacity: 0;
+      transform: translateY(.55rem);
+      transition: opacity .55s ease .25s, transform .65s var(--ease-out) .25s;
+    }
+    .letter p {
+      margin: 0;
+      max-width: 24rem;
+      font-size: clamp(.78rem, 1.6vw, .98rem);
+      line-height: 1.48;
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity .58s ease .42s, transform .6s var(--ease-out) .42s;
+    }
+    .letter-signoff {
+      margin-top: 1rem !important;
+      font-family: "Lucida Calligraphy", "Monotype Corsiva", "URW Chancery L", cursive;
+      font-style: normal;
+      font-size: clamp(.95rem, 1.9vw, 1.15rem) !important;
+    }
+
+    .front-panel {
+      z-index: 5;
+      border-radius: .55rem;
+      clip-path: polygon(0 0, 50% 53%, 100% 0, 100% 100%, 0 100%);
+      background:
+        radial-gradient(circle at 78% 13%, rgba(255,255,255,.76), transparent 22%),
+        radial-gradient(circle at 17% 90%, rgba(244,180,202,.25), transparent 31%),
+        linear-gradient(137deg, rgba(255,255,255,.57), rgba(112,203,224,.16) 40%, rgba(244,180,202,.25)),
+        rgba(219,246,250,.34);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px rgba(112,203,224,.14);
+      backdrop-filter: blur(10px) saturate(138%);
+      transition: opacity .7s ease, transform 1s var(--ease-out);
+    }
+    .front-panel::before, .front-panel::after {
+      content: "";
+      position: absolute;
+      left: 50%; top: 30%;
+      width: 110%; height: 1px;
+      background: linear-gradient(90deg, transparent 2%, rgba(255,255,255,.91), transparent 97%);
+      transform-origin: center;
+      opacity: .86;
+    }
+    .front-panel::before { transform: translateX(-50%) rotate(31deg); }
+    .front-panel::after { transform: translateX(-50%) rotate(-31deg); }
+
+    /* Iridescent edge work makes the envelope read as a crafted glass object. */
+    .prism-rim {
+      pointer-events: none;
+      position: absolute;
+      z-index: 6;
+      inset: -.16rem;
+      border: 1px solid rgba(255,255,255,.90);
+      border-radius: .7rem;
+      box-shadow:
+        inset 0 0 0 1px rgba(112,203,224,.22),
+        inset 0 0 1.35rem rgba(244,180,202,.12),
+        0 0 1.15rem rgba(255,255,255,.48);
+      opacity: .82;
+      animation: rimGlow 5.5s ease-in-out infinite alternate;
+      transition: opacity .5s ease, transform 1s var(--ease-out);
+    }
+    .prism-rim::before {
+      content: "";
+      position: absolute;
+      inset: -.12rem;
+      border-radius: inherit;
+      border-top: 2px solid rgba(255,255,255,.96);
+      border-right: 1px solid rgba(244,180,202,.62);
+      border-bottom: 1px solid rgba(112,203,224,.46);
+      filter: blur(.15px);
+    }
+    @keyframes rimGlow { to { opacity: 1; box-shadow: inset 0 0 0 1px rgba(112,203,224,.40), inset 0 0 1.75rem rgba(244,180,202,.20), 0 0 1.65rem rgba(255,255,255,.68); } }
+    .glint {
+      pointer-events: none;
+      position: absolute;
+      z-index: 8;
+      display: block;
+      border-radius: 50%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.98), transparent);
+      filter: blur(.15px);
+      opacity: .83;
+      transition: opacity .6s ease;
+    }
+    .glint--top { width: 21%; height: 2px; left: 10%; top: 4%; transform: rotate(-11deg); }
+    .glint--side { width: 14%; height: 2px; right: 2%; top: 49%; transform: rotate(78deg); opacity: .58; }
+
+    .flap { 
+      z-index: 7;
+      bottom: auto;
+      height: 59%;
+      border-radius: .55rem .55rem 0 0;
+      clip-path: polygon(0 0, 100% 0, 50% 100%);
+      transform-origin: 50% 0;
+      transform: translateZ(23px) rotateX(0deg);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(255,255,255,.92), transparent 48%),
+        linear-gradient(151deg, rgba(255,255,255,.82), rgba(112,203,224,.27) 54%, rgba(244,180,202,.39)),
+        rgba(218,244,249,.35);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.96), inset 0 -1px rgba(244,180,202,.22), 0 .3rem .75rem rgba(12,73,99,.06);
+      backdrop-filter: blur(11px) saturate(150%);
+      transition: transform 1.05s var(--ease-spring), opacity .48s ease .52s;
+      will-change: transform;
+    }
+    .flap::before {
+      content: "";
+      position: absolute;
+      inset: .45rem 10% 24%;
+      border-top: 1px solid rgba(255,255,255,.56);
+      border-radius: 50%;
+      transform: rotate(-4deg);
+      opacity: .75;
+    }
+    .flap::after {
+      content: "";
+      position: absolute;
+      width: 60%; height: 60%;
+      left: 20%; top: 5%;
+      background: radial-gradient(circle at 50% 22%, rgba(255,255,255,.74), transparent 66%);
+      filter: blur(5px);
+    }
+
+    /* A single pearl of light orbits the seal, inviting the first click. */
+    .seal-orbit {
+      pointer-events: none;
+      position: absolute;
+      z-index: 8;
+      width: 5.4rem;
+      aspect-ratio: 1;
+      left: calc(50% - 2.7rem);
+      top: calc(52% - 2.7rem);
+      border: 1px solid rgba(255,255,255,.23);
+      border-radius: 50%;
+      box-shadow: inset 0 0 .65rem rgba(112,203,224,.08), 0 0 1.1rem rgba(255,255,255,.16);
+      transform: rotate(0deg);
+      animation: sealOrbit 4.8s linear infinite;
+      transition: opacity .38s ease, transform .8s var(--ease-spring);
+    }
+    .seal-orbit::before {
+      content: "";
+      position: absolute;
+      width: .47rem;
+      aspect-ratio: 1;
+      left: calc(50% - .235rem);
+      top: -.24rem;
+      border-radius: 50%;
+      background: radial-gradient(circle at 34% 27%, #fff 0 14%, #ffeef5 27%, #f4b4ca 58%, #70cbe0 100%);
+      box-shadow: 0 0 .45rem .14rem rgba(255,255,255,.9), 0 0 1.05rem .25rem rgba(244,180,202,.48);
+    }
+    .seal-orbit::after {
+      content: "";
+      position: absolute;
+      width: 1.6rem;
+      height: 1px;
+      left: calc(50% - .8rem);
+      top: -.08rem;
+      border-radius: 50%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.82), transparent);
+      filter: blur(.35px);
+    }
+    @keyframes sealOrbit { to { transform: rotate(360deg); } }
+    .seal-burst {
+      pointer-events: none;
+      position: absolute;
+      z-index: 7;
+      width: 3.2rem;
+      aspect-ratio: 1;
+      left: calc(50% - 1.6rem);
+      top: calc(52% - 1.6rem);
+      border: 1px solid rgba(255,255,255,.8);
+      border-radius: 50%;
+      box-shadow: 0 0 1.2rem rgba(244,180,202,.55), inset 0 0 .65rem rgba(112,203,224,.42);
+      opacity: 0;
+      transform: scale(.5);
+    }
+    .seal-burst::before, .seal-burst::after {
+      content: "";
+      position: absolute;
+      inset: -.45rem;
+      border: 1px solid rgba(255,255,255,.34);
+      border-radius: inherit;
+    }
+    .seal-burst::after { inset: .35rem; border-color: rgba(244,180,202,.54); }
+    @keyframes sealBurst {
+      0% { opacity: 0; transform: scale(.48); }
+      28% { opacity: .95; transform: scale(1); }
+      100% { opacity: 0; transform: scale(2.3); }
+    }
+
+    .seal {
+      position: absolute;
+      z-index: 9;
+      width: 3rem;
+      aspect-ratio: 1;
+      left: calc(50% - 1.5rem);
+      top: calc(52% - 1.5rem);
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,.93);
+      color: rgba(11,73,99,.90);
+      background:
+        radial-gradient(circle at 30% 23%, rgba(255,255,255,.98), transparent 20%),
+        conic-gradient(from 205deg, rgba(244,180,202,.95), rgba(255,255,255,.90), rgba(112,203,224,.75), rgba(244,180,202,.95));
+      box-shadow: 0 .4rem .9rem rgba(98,60,75,.21), inset 0 1px rgba(255,255,255,.96), inset 0 0 .75rem rgba(255,255,255,.58);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 1.36rem;
+      font-style: italic;
+      text-shadow: 0 1px rgba(255,255,255,.78);
+      transition: transform .8s var(--ease-spring), opacity .45s ease .25s;
+    }
+    .seal::before {
+      content: "";
+      position: absolute;
+      inset: .28rem;
+      border: 1px solid rgba(255,255,255,.72);
+      border-radius: inherit;
+      box-shadow: inset 0 0 .4rem rgba(11,73,99,.10);
+    }
+    .seal::after {
+      content: "✦";
+      position: absolute;
+      right: .24rem;
+      top: .08rem;
+      color: rgba(255,255,255,.88);
+      font-family: Georgia, serif;
+      font-size: .55rem;
+      text-shadow: 0 1px .25rem rgba(11,73,99,.2);
+    }
+
+    .instruction {
+      position: absolute;
+      z-index: 10;
+      left: 50%;
+      bottom: -3.15rem;
+      width: max-content;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: .55rem;
+      font-size: .68rem;
+      letter-spacing: .13em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      opacity: .62;
+      transition: opacity .35s ease, transform .45s var(--ease-out);
+    }
+    .instruction-dot { width: .38rem; aspect-ratio: 1; border-radius: 50%; background: var(--pink-300); animation: breathe 1.8s ease-in-out infinite; }
+    @keyframes breathe { 50% { transform: scale(1.75); opacity: .35; } }
+
+    /* Sequence: the seal gathers light, releases, then the paper rises. */
+    .is-unsealing .envelope-wrap {
+      transform: translateY(-.4rem) rotateX(-2deg) scale(1.018);
+      filter: drop-shadow(0 2.5rem 2.4rem rgba(8, 53, 76, .23));
+    }
+    .is-unsealing .glass-orbit { animation-duration: 1.15s; opacity: 1; scale: 1.06; }
+    .is-unsealing .color-revolve { animation-duration: 7s; opacity: .93; }
+    .is-unsealing .color-revolve::before { animation-duration: 4.6s; }
+    .is-unsealing .color-revolve::after { animation-duration: 3.7s; }
+    .is-unsealing .envelope-wrap::before { opacity: 1; transform: scale(1.24); }
+    .is-unsealing .seal {
+      transform: translateZ(30px) scale(1.14);
+      box-shadow: 0 .55rem 1.25rem rgba(98,60,75,.26), 0 0 1.8rem rgba(255,255,255,.82), inset 0 1px rgba(255,255,255,.96), inset 0 0 .75rem rgba(255,255,255,.58);
+    }
+    .is-unsealing .seal-orbit {
+      animation-duration: .72s;
+      box-shadow: inset 0 0 .8rem rgba(112,203,224,.22), 0 0 1.9rem rgba(255,255,255,.72);
+    }
+    .is-unsealing .seal-burst { animation: sealBurst .85s var(--ease-out) both; }
+    .is-unsealing .stage::before { animation: auraFlash 1.2s var(--ease-out) both; }
+    @keyframes auraFlash {
+      0% { opacity: .86; transform: translate(-50%, -50%) scale(.83); }
+      38% { opacity: 1; transform: translate(-50%, -50%) scale(1.02); }
+      100% { opacity: .9; transform: translate(-50%, -50%) scale(.91); }
+    }
+
+    .is-opening .intro { opacity: 0; transform: translate(-50%, -1.2rem); }
+    .is-opening .glass-orbit { opacity: .34; scale: 1.16; }
+    .is-opening .envelope-wrap { transform: translateY(1.3rem) rotateX(6deg) scale(.96); }
+    .is-opening .halo { opacity: .9; transform: translateZ(-30px) scale(1.18); }
+    .is-opening .flap { transform: translateZ(23px) rotateX(-178deg); }
+    .is-opening .seal { transform: translateY(-1.25rem) rotate(28deg) scale(.67); opacity: 0; }
+    .is-opening .seal-orbit { opacity: 0; animation-play-state: paused; }
+    .is-opening .instruction { opacity: 0; transform: translate(-50%, .5rem); }
+
+    /* The pocket releases only after the flap has started to lift. */
+    .is-letter-out .letter-pocket { overflow: visible; z-index: 8; }
+    .is-letter-out .letter { transform: translate3d(0, -31%, 80px) rotateX(0deg) scale(1.01); }
+    .is-letter-out .letter::before { animation: paperBloom 1.25s var(--ease-out) both; }
+    .is-letter-out .letter::after { transform: translateX(135%); }
+    .is-letter-out .front-panel { opacity: .18; }
+
+    .is-open .envelope-wrap {
+      transform: translateZ(0) scale(1);
+      filter: drop-shadow(0 1.3rem 1.5rem rgba(8,53,76,.1));
+    }
+    .is-open .glass-orbit { opacity: 0; scale: 1.32; }
+    .is-open .color-revolve { animation-duration: 24s; opacity: .78; }
+    .is-open .color-revolve::before { animation-duration: 17s; }
+    .is-open .color-revolve::after { animation-duration: 12s; }
+    .is-open .letter-pocket { overflow: visible; z-index: 13; }
+    .is-open .back-panel { opacity: .31; transform: translateY(17%) scale(.78); }
+    .is-open .inner-liner { opacity: .22; transform: translateY(17%) scale(.78); }
+    .is-open .front-panel { opacity: .05; transform: translateY(17%) scale(.78); }
+    .is-open .prism-rim { opacity: .24; transform: translateY(17%) scale(.78); }
+    .is-open .glint { opacity: 0; }
+    .is-open .letter {
+      z-index: 13;
+      width: min(124%, 34rem);
+      height: min(165%, 26rem);
+      left: -12%;
+      top: -28%;
+      padding: clamp(1.25rem, 4vw, 2.1rem);
+      transform: translate3d(0, -2%, 215px) rotateX(0) scale(1);
+      box-shadow: 0 2rem 4.7rem rgba(11, 66, 89, .22), inset 0 0 0 1px rgba(16,75,98,.12);
+    }
+    .is-open .letter-rule,
+    .is-open .letter-mark,
+    .is-open .letter h2 { opacity: 1; transform: translateY(0); }
+    .is-open .letter p { opacity: .76; transform: translateY(0); }
+    .is-open .letter h2 { font-size: clamp(1.5rem, 3.8vw, 3rem); }
+    .is-open .instruction { opacity: 0; }
+
+    @media (max-width: 520px) {
+      .experience { padding: 1.25rem; }
+      .stage { min-height: 37rem; }
+      .intro { top: 3rem; }
+      .envelope-button { --w: min(87vw, 24rem); }
+      .instruction { bottom: -2.6rem; font-size: .59rem; }
+      .is-open .letter { top: -22%; height: 150%; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <main class="experience" id="experience">
+    <div class="color-revolve" aria-hidden="true"></div>
+    <div class="noise" aria-hidden="true"></div>
+    <div class="ambient-glow ambient-glow--rose" aria-hidden="true"></div>
+    <div class="ambient-glow ambient-glow--sea" aria-hidden="true"></div>
+    <div class="ambient-glow ambient-glow--ivory" aria-hidden="true"></div>
+    <div class="orb orb--one" aria-hidden="true"></div>
+    <div class="orb orb--two" aria-hidden="true"></div>
+    <div class="orb orb--three" aria-hidden="true"></div>
+    <div class="stardust" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="petal-drift" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+
+    <section class="stage" aria-label="Interactive letter experience">
+      <div class="intro" aria-hidden="true">
+        <p class="eyebrow">A small moment, saved for you</p>
+        <h1>A letter is waiting.</h1>
+        <p class="intro-copy">A glass-clear envelope holds a note. Open it whenever you are ready.</p>
+      </div>
+
+      <button class="envelope-button" id="envelopeButton" type="button" aria-label="Open the letter" aria-describedby="envelopeHint">
+        <span class="halo" aria-hidden="true"></span>
+        <span class="glass-orbit glass-orbit--outer" aria-hidden="true"></span>
+        <span class="glass-orbit glass-orbit--inner" aria-hidden="true"></span>
+        <span class="envelope-wrap">
+          <span class="envelope" aria-hidden="true">
+            <span class="back-panel"></span>
+            <span class="inner-liner"></span>
+            <span class="letter-pocket">
+              <span class="letter">
+                <span class="letter-frame" aria-hidden="true"></span>
+                <span class="letter-bloom letter-bloom--top" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                <span class="letter-bloom letter-bloom--bottom" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                <span class="letter-bloom letter-bloom--side-left" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                <span class="letter-bloom letter-bloom--side-right" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i></span>
+                <span class="letter-garland" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+                <span class="letter-petal-layer" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
+                <span class="letter-scroll" id="letterScroll">
+                  <span class="letter-rule"></span>
+                  <h2>Hlo asifa</h2>
+                  <p>Kasi ho, sub kuch thek Hai? Umm may be exam time I don't think so, I wanted to clarify and convey one thing Rey that abt what happened in recent days and why I acted like that.</p>
+                  <p>So Ik u will be not in the mood to talk with others in the exam time 👀 and u will be alright become normal when the exams will be over but in my point of view i think when u were in low talking with other person is good I don't know with whom u talk that time but I keep msging so that u won't feel low even 1% I am helpful that will be good nah because 0&lt;1 kada so u will be feel better even 1% and I won't feel even a little bit that u were rude to me at all so I will be always there when u need even it is a small thing also so don't feel alone and if u won't feel to talk with anyone just answer my msg so that I keep talking so that u won't need to talk just see my msgs if they make u smile it will be better for u kada 😁</p>
+                  <p>And the thing is now we have exams and u already said that u won't like to talk with people In starting it self and I respect your decision so I wanted to make u feel a little bit smile so for that I keep on msging u and I felt that I was making u talk forcefully yeah ik a little bit of what u were facing but I don't know why I felt like that but after thinking abt it I got the reason why I felt like that and it was completely my wrong and sorry for that u didn't done anything wrong Rey and for that I was 100%sure u didn't made any wrong.</p>
+                  <p>the thing is here my exams are also ongoing and I am working on many projects too and nowadays I am getting frequent migraine attacks and here recent times I felt Ignored and left out when I am with this btech classmates and my fav persons also so I was working on that to make clarify them so my mind is not good state to think so may be that's the reason I felt like that abt u and when I feel ignored among people I always leave that place Rey I learned that a lot when I am in inter with those people to leave that place so when we are in group chat yeahhh that was totally normal chat there but on my thoughts and condition that time even a same type of msg which in group were sending also felt like I am being ignored so many thoughts were running that time 🕒 and so outof habit I left the group so then I realized Rey so sorry abt that and I want to make sure that u don't did anything wrong Rey it was completely my fault so don't think abt it</p>
+                  <p>So that's the thing I wanted to convey I am not good with words so adjust with my explanation above 😄 so that's it I wanted to convey and sorry from my bottom of hearts for making u worry and I won't make u worry in future with this of thing okay so acccept my apologies</p>
+                  <p class="letter-signoff">From ur friend Pavan to the ghost 👻</p>
+                </span>
+                <span class="scroll-cue" aria-hidden="true">Scroll to continue ↓</span>
+              </span>
+            </span>
+            <span class="front-panel"></span>
+            <span class="prism-rim"></span>
+            <span class="glint glint--top"></span>
+            <span class="glint glint--side"></span>
+            <span class="flap"></span>
+            <span class="seal-burst" aria-hidden="true"></span>
+            <span class="seal-orbit" aria-hidden="true"></span>
+            <span class="seal">A</span>
+          </span>
+          <span class="instruction" id="envelopeHint"><span class="instruction-dot"></span>Tap to unseal</span>
+        </span>
+      </button>
+    </section>
+  </main>
+
+  <script>
+    const experience = document.getElementById('experience');
+    const envelopeButton = document.getElementById('envelopeButton');
+    const letterScroll = document.getElementById('letterScroll');
+    let state = 'closed';
+
+    function wait(callback, ms) {
+      window.setTimeout(callback, ms);
+    }
+
+    function openLetter() {
+      if (state !== 'closed') return;
+      state = 'opening';
+      envelopeButton.disabled = true;
+      envelopeButton.setAttribute('aria-label', 'Unsealing letter');
+      experience.classList.add('is-unsealing');
+
+      // A cinematic three-beat sequence: charge the seal → lift the flap → release the note.
+      wait(() => {
+        experience.classList.add('is-opening');
+        envelopeButton.setAttribute('aria-label', 'Opening letter');
+      }, 420);
+      wait(() => experience.classList.add('is-letter-out'), 860);
+      wait(() => {
+        experience.classList.add('is-open');
+        letterScroll.scrollTop = 0;
+        envelopeButton.setAttribute('aria-label', 'Letter open');
+        envelopeButton.disabled = false;
+        state = 'open';
+
+        // A small automatic nudge shows that the opened letter can be read by scrolling.
+        wait(() => {
+          letterScroll.scrollTo({ top: 42, behavior: 'smooth' });
+          wait(() => letterScroll.scrollTo({ top: 0, behavior: 'smooth' }), 900);
+        }, 760);
+      }, 1760);
+    }
+
+    envelopeButton.addEventListener('click', openLetter);
+  </script>
+</body>
+</html>
